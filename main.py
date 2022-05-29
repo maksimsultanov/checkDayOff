@@ -28,9 +28,27 @@ def check_red_letter_days(check_date):
 
 
 def create_red_letter_day_task():
-    if check_red_letter_days(datetime.date.today() + datetime.timedelta(days=3)):
-        today_format = str(datetime.date.today() + datetime.timedelta(days=3))
+    """
+    Функция выполняет добавление задачи в Битрикс за 3 дня до праздника
+    Полея для добавления задачи описаны тут https://dev.1c-bitrix.ru/rest_help/tasks/task/tasks/tasks_task_getFields.php
+    Метод добавления задачи https://dev.1c-bitrix.ru/rest_help/tasks/task/tasks/tasks_task_add.php
+    Подключение к rest api Битрикс24 происходит через webhook https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=99&LESSON_ID=8581
+    Использовались следующие поля:
+    TITLE 	Название 	string
+    RESPONSIBLE_ID 	Исполнитель 	integer
+    :return:
+    """
+
+    # определение даты которую нужно проверить
+    check_date = datetime.date.today() + datetime.timedelta(days=3)
+    # Проверка, будет ли через 3 дня праздник
+    if check_red_letter_days(check_date):
+        # Дата прошедная проверку, преобразуется в строку
+        today_format = str(check_date)
+        # Далее полученная строка приводится к виду принятому в РФ для написания даты
         todayis = today_format[8:10] + "-" + today_format[5:7] + "-" + today_format[0:4]
+        # Попытка создать задачу в Битрикс24
+        # В случае неуспеха выводится сообщение об ошибке от Битрикс24
         try:
             bx24.callMethod('tasks.task.add',
                             fields={'TITLE': todayis + ' ' + RED_LETTER_DAYS[today_format], 'RESPONSIBLE_ID': 1})
